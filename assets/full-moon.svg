@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="400.02" viewBox="3.511 0 451.977 452">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #eadd46;
+        mix-blend-mode: multiply;
+        filter: url(#filter);
+      }
+    </style>
+    <filter id="filter" x="45" y="45" width="363" height="363" filterUnits="userSpaceOnUse">
+      <feOffset result="offset" dy="3" in="SourceAlpha"/>
+      <feGaussianBlur result="blur" stdDeviation="2.646"/>
+      <feFlood result="flood" flood-opacity="0.35"/>
+      <feComposite result="composite" operator="in" in2="blur"/>
+      <feBlend result="blend" in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <circle id="Эллипс_1_копия_2" data-name="Эллипс 1 копия 2" class="cls-1" cx="229" cy="226" r="175"/>
+</svg>
