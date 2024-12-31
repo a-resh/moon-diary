@@ -2,27 +2,27 @@ import * as suncalc from 'suncalc';
 // @ts-ignore
 import * as lune from 'lune';
 import moment from 'moment';
-import {filter, map, range, drop, chain, head} from 'lodash';
-import {Moment} from 'moment/moment';
-import {Platform, StyleSheet} from 'react-native';
-import {getLocation} from './get-geolocation';
+import {filter, map, range, drop, head} from 'lodash';
+import {startOfDay} from 'date-fns/startOfDay';
+import {endOfDay} from 'date-fns/endOfDay';
+import {intervalToDuration} from 'date-fns/intervalToDuration';
+import {isBefore} from 'date-fns/isBefore';
+import {isAfter} from 'date-fns/isAfter';
+import {add} from 'date-fns/add';
 
-const isDayBetween = (start: Moment, end: Moment, day: Moment) => {
-  return (
-    moment(day).startOf('day').isBetween(moment(start), moment(end)) ||
-    moment(day).endOf('day').isBetween(moment(start), moment(end))
-  );
+const isDayBetween = (start: Date, day: Date, end?: Date) => {
+  return isBefore(day, end || new Date()) && isAfter(day, start);
 };
 
-const daysRange = (startDate: Moment, numberOfDays: number) => {
+const daysRange = (startDate: Date, numberOfDays: number) => {
   return map(range(0, numberOfDays + 1), i =>
-    moment(moment(startDate).startOf('day').add(i, 'days')),
+    add(startOfDay(startDate), {days: i}),
   );
 };
 
-const recentNewMoon = (date: Moment) => {
-  let endOfDate = moment(date).endOf('day').toDate();
-  let startOfDate = moment(date).startOf('day').toDate();
+const recentNewMoon = (date: Date): Date => {
+  let endOfDate = endOfDay(date);
+  let startOfDate = startOfDay(date);
 
   let recentPhases = lune.phase_hunt(endOfDate);
 
@@ -30,32 +30,30 @@ const recentNewMoon = (date: Moment) => {
     recentPhases = lune.phase_hunt(startOfDate);
   }
 
-  return moment(recentPhases.new_date);
+  return recentPhases.new_date;
 };
 
-const daysBetween = (start: Moment, end: Moment) => {
-  return moment(end).endOf('day').diff(moment(start).startOf('day'), 'days');
+const daysBetween = (start: Date, end: Date): number => {
+  const {days} = intervalToDuration({
+    end: endOfDay(end),
+    start: startOfDay(start),
+  });
+  if (!days) {
+    return 0;
+  }
+  return days;
 };
 
-const moonRises = (days: Moment[], latitude: number, longitude: number) => {
-  return chain(days)
-    .map(
-      day =>
-        suncalc.getMoonTimes(moment(day).toDate(), latitude, longitude).rise,
-    )
-    .filter(rise => !!rise)
-    .map(rise => moment(rise))
-    .value();
+const moonRises = (days: Date[], latitude: number, longitude: number) => {
+  return days
+    .map(day => suncalc.getMoonTimes(day, latitude, longitude).rise)
+    .filter(rise => !!rise);
 };
 
-export const lunarDays = (
-  date: Moment,
-  latitude: number,
-  longitude: number,
-) => {
+export const lunarDays = (date: Date, latitude: number, longitude: number) => {
   let newMoon = recentNewMoon(date);
   let diffDays = daysBetween(newMoon, date);
-  let initDate = moment(newMoon).startOf('day');
+  let initDate = startOfDay(newMoon);
 
   // WE NEED CALCULATE CURRENT DAY + 2 for all moon days
 
@@ -82,7 +80,5 @@ export const lunarDays = (
       end: rises[i + 1],
     });
   }
-  return filter(moonDays, ({start, end}) =>
-    isDayBetween(start, end || moment(), date),
-  );
+  return filter(moonDays, ({start, end}) => isDayBetween(start, date, end));
 };

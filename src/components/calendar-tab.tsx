@@ -1,28 +1,37 @@
-import React, {useContext, useEffect} from 'react';
-import {Calendar, LocaleConfig} from 'react-native-calendars/src';
+import React, {useContext, useState} from 'react';
+import {Calendar} from 'react-native-calendars/src';
 import {StateContext} from '../state';
-import {
-  primaryColor,
-  primaryColorActive,
-  secondColor,
-  secondColorActive,
-} from '../styles';
+import {secondColor, secondColorActive} from '../styles';
 import {View} from 'react-native';
 import {MoonDaySwitcher} from './moon-day-switcher';
 import moment from 'moment';
 
 export const CalendarTab: React.FC = () => {
-  const {setCurrentDate, setActiveTab, currentDate} = useContext(StateContext);
+  const {setCurrentDate, setActiveTab, currentDate, headerSize} =
+    useContext(StateContext);
+  const [, setCalendarHeight] = useState(350);
+
   // @ts-ignore
   return (
-    <View>
+    <View
+      style={{maxHeight: headerSize, paddingBottom: '3%'}}
+      onLayout={event => {
+        const {height} = event.nativeEvent.layout;
+        setCalendarHeight(Math.round(height));
+      }}
+    >
+      {/*<View onLayout={(event) => {*/}
+      {/*  const {x, y, width, height} = event.nativeEvent.layout;*/}
+      {/*  console.log(x, y, width, height);*/}
+      {/*  setCalendarHeight(Math.round(height))*/}
+      {/*}}>*/}
       <Calendar
         // Specify style for calendar container element. Default = {}
         style={{
           // borderWidth: 1,
           // borderColor: 'gray',
-          height: 290,
-          backgroundColor: primaryColor,
+          height: headerSize - 90,
+          backgroundColor: '#b56130',
         }}
         markingType={'custom'}
         markedDates={{
@@ -53,8 +62,8 @@ export const CalendarTab: React.FC = () => {
         }}
         // Specify theme properties to override specific styles for calendar parts. Default = {}
         theme={{
-          backgroundColor: primaryColor,
-          calendarBackground: primaryColor,
+          backgroundColor: '#b56130',
+          calendarBackground: '#b56130',
           textSectionTitleColor: secondColor,
           textSectionTitleDisabledColor: '#d9e1e8',
           selectedDayBackgroundColor: '#00adf5',
@@ -91,7 +100,10 @@ export const CalendarTab: React.FC = () => {
           // setActiveTab('today');
         }}
       />
+      {/*</View>*/}
+      {/*<View style={{position: 'absolute', width: '100%', marginTop: calendarHeight - 70}} >*/}
       <MoonDaySwitcher withDates />
+      {/*</View>*/}
     </View>
   );
 };

@@ -1,80 +1,72 @@
-import {StyleSheet, Text, TouchableHighlight, View} from 'react-native';
-import React, {useContext, useState} from 'react';
+import {StyleSheet, View} from 'react-native';
+import React, {useContext} from 'react';
 import {StateContext} from '../state';
-import {primaryColor, primaryColorActive, secondColor} from '../styles';
-import {t} from 'i18n-js';
-// @ts-ignore
-import InsetShadow from 'react-native-inset-shadow';
-import {FormattedText} from './formated-text';
+import {secondColor} from '../styles';
+import {Button} from 'react-native-paper';
+import {useFonts} from 'expo-font';
 
 export const HeaderMenu: React.FC = () => {
   const {activeTab, setActiveTab} = useContext(StateContext);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loaded] = useFonts({
+    NunitoBold: require('../../assets/fonts/Nunito-Bold.ttf'),
+  });
+  if (!loaded) return null;
+
   return (
     <View style={styles.buttonsWrapper}>
-      <View
-        style={[
-          styles.buttonMenu,
-          {borderBottomWidth: activeTab === 'today' ? 2 : 0},
-        ]}
+      <Button
+        style={{
+          borderWidth: activeTab === 'today' ? 3 : 1,
+          ...styles.buttonMenu,
+          borderRightWidth: activeTab === 'today' ? 3 : 0,
+        }}
+        onPress={() => setActiveTab('today')}
+        buttonColor={activeTab === 'today' ? '#c39640' : '#dbb683'}
+        textColor={'#fffdf7'}
+        labelStyle={{fontFamily: 'NunitoBold', fontSize: 18}}
+        contentStyle={{height: '100%'}}
+        mode={'outlined'}
       >
-        <InsetShadow>
-          <TouchableHighlight
-            underlayColor={primaryColor}
-            onPress={() => setActiveTab('today')}
-            style={styles.buttonMenuTouch}
-          >
-            <FormattedText style={styles.text}>{t('Today')}</FormattedText>
-          </TouchableHighlight>
-        </InsetShadow>
-      </View>
-      <View
-        style={[
-          styles.buttonMenu,
-          {borderBottomWidth: activeTab === 'calendar' ? 2 : 0},
-        ]}
+        Today
+      </Button>
+      <Button
+        style={{
+          borderWidth: activeTab === 'calendar' ? 3 : 1,
+          ...styles.buttonMenu,
+          borderLeftWidth: activeTab === 'calendar' ? 3 : 0,
+        }}
+        onPress={() => setActiveTab('calendar')}
+        labelStyle={{fontFamily: 'NunitoBold', fontSize: 18}}
+        buttonColor={activeTab === 'calendar' ? '#c39640' : '#dbb683'}
+        textColor={'#fffdf7'}
+        contentStyle={{height: '100%'}}
+        mode={'outlined'}
       >
-        <InsetShadow>
-          <TouchableHighlight
-            underlayColor={primaryColor}
-            onPress={() => setActiveTab('calendar')}
-            style={styles.buttonMenuTouch}
-          >
-            <FormattedText style={styles.text}>{t('Calendar')}</FormattedText>
-          </TouchableHighlight>
-        </InsetShadow>
-      </View>
-      {/*<View style={styles.iconButtonWrapper}>*/}
-      {/*  <Icon.Button*/}
-      {/*    underlayColor={primaryColor}*/}
-      {/*    name="ellipsis-v"*/}
-      {/*    onPress={() => setIsModalVisible(s => !s)}*/}
-      {/*    size={25}*/}
-      {/*    backgroundColor="rgba(0,0,0,0)"*/}
-      {/*    color={secondColor}*/}
-      {/*  />*/}
-      {/*</View>*/}
-      {/*<Modal isVisible={isModalVisible} setIsVisible={setIsModalVisible} />*/}
+        Calendar
+      </Button>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   buttonsWrapper: {
-    alignSelf: 'stretch',
+    // alignSelf: 'stretch',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    height: 60,
+    height: 50,
   },
   buttonMenu: {
     // flex: 0.45,
-
+    borderRadius: 0,
     width: '50%',
     height: '100%',
+    // borderWidth: 0,
+    fontSize: 20,
+    borderColor: '#dad1b2',
 
-    borderBottomColor: secondColor,
+    // borderBottomWidth: 5
   },
   buttonMenuTouch: {
     display: 'flex',

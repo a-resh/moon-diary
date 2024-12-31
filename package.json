@@ -7,32 +7,40 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "pretify": "prettier --write ."
   },
   "dependencies": {
-    "@react-native-async-storage/async-storage": "~1.15.0",
-    "expo": "~44.0.0",
-    "expo-font": "~10.0.4",
-    "expo-localization": "~12.0.0",
-    "expo-location": "~14.0.1",
-    "expo-status-bar": "~1.2.0",
-    "expo-updates": "~0.11.6",
+    "@react-native-async-storage/async-storage": "1.23.1",
+    "@react-native-picker/picker": "2.9.0",
+    "date-fns": "^3.6.0",
+    "expo": "^52.0.11",
+    "expo-asset": "~11.0.1",
+    "expo-blur": "~14.0.1",
+    "expo-font": "~13.0.1",
+    "expo-localization": "~16.0.0",
+    "expo-location": "~18.0.2",
+    "expo-status-bar": "~2.0.0",
+    "expo-updates": "~0.26.9",
     "i18n-js": "^3.8.0",
     "lodash": "^4.17.21",
     "lune": "^0.4.0",
     "moment": "^2.29.1",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
-    "react-native": "0.64.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-native": "0.76.3",
     "react-native-autocomplete-input": "^5.0.2",
     "react-native-calendars": "^1.1278.0",
-    "react-native-inset-shadow": "^1.0.3",
+    "react-native-element-dropdown": "^2.12.2",
     "react-native-localize": "^2.1.9",
-    "react-native-shadow-2": "^6.0.3",
-    "react-native-svg": "^12.1.1",
+    "react-native-paper": "^5.12.5",
+    "react-native-reanimated": "~3.16.1",
+    "react-native-safe-area-context": "4.12.0",
+    "react-native-svg": "15.8.0",
     "react-native-vector-icons": "^9.1.0",
-    "react-native-web": "0.17.1",
+    "react-native-web": "~0.19.10",
     "redux-saga": "^1.1.3",
+    "styled-components": "^6.1.13",
     "suncalc": "^1.9.0"
   },
   "devDependencies": {
@@ -40,8 +48,7 @@
     "@react-native-community/eslint-config": "^2.0.0",
     "@types/i18n-js": "^3.8.2",
     "@types/lodash": "^4.14.178",
-    "@types/react": "~17.0.21",
-    "@types/react-native": "~0.64.12",
+    "@types/react": "~18.3.12",
     "@types/react-native-autocomplete-input": "^5.0.0",
     "@types/react-native-vector-icons": "^6.4.10",
     "@types/react-test-renderer": "^17.0.1",
@@ -53,7 +60,23 @@
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "typescript": "~4.3.5"
+    "typescript": "~5.3.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "date-fns",
+          "i18n-js",
+          "lodash",
+          "lune",
+          "moment",
+          "redux-saga",
+          "styled-components",
+          "suncalc"
+        ]
+      }
+    }
+  }
 }

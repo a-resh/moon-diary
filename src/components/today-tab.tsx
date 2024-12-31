@@ -1,168 +1,130 @@
-import {StyleSheet, Text, View, Image} from 'react-native';
+import {StyleSheet, View, Image} from 'react-native';
 import {FormattedText} from './formated-text';
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {StateContext} from '../state';
 import {secondColor} from '../styles';
 import {MoonDaySwitcher} from './moon-day-switcher';
-import moment from 'moment';
 import 'moment/min/locales';
 import i18n, {t} from 'i18n-js';
 import * as SunCalc from 'suncalc';
+import {format} from 'date-fns/format';
+import {timeLocale} from '../localization/config';
+import {IconButton} from 'react-native-paper';
 type PhaseData = {
   name: string;
-  image: React.ReactNode;
 };
 
 export const TodayTab: React.FC = () => {
-  const defaultImage = (
-    <Image
-      source={require('../../assets/full-moon.png')}
-      style={[styles.moonImage]}
-    />
-  );
-  const {currentMoonDay, currentDate, setCurrentDate} =
+  const {currentMoonDay, currentDate, setIsShowConfigDialog} =
     useContext(StateContext);
   const [moonPhase, setMoonPhase] = useState<PhaseData>({
     name: 'fullMoon',
-    image: defaultImage,
   });
-  useEffect(() => {
-    setCurrentDate(new Date());
-  }, []);
-  useEffect(() => {
-    const phaseData = getMoonPhase();
-    setMoonPhase(p => (phaseData ? phaseData : p));
-  }, [currentDate]);
-  const getMoonPhase = useCallback(() => {
-    const {phase} = SunCalc.getMoonIllumination(currentDate);
-    if (phase < 0.1) {
-      return {
-        name: 'newMoon',
-        image: (
-          <Image
-            source={require('../../assets/new-moon.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-    if (phase < 0.12) {
-      return {
-        name: 'waxingCrescent',
-        image: (
-          <Image
-            source={require('../../assets/waxing-crescent.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-    if (phase < 0.25) {
-      return {
-        name: 'firstQuarter',
-        image: (
-          <Image
-            source={require('../../assets/first-quarter.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-    if (phase < 0.41) {
-      return {
-        name: 'waxingGibbous',
-        image: (
-          <Image
-            source={require('../../assets/waxing-gibbous.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-    if (phase < 0.53) {
-      return {
-        name: 'fullMoon',
-        image: (
-          <Image
-            source={require('../../assets/full-moon.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-    if (phase < 0.7) {
-      return {
-        name: 'waningGibbous',
-        image: (
-          <Image
-            source={require('../../assets/waning-gibbous.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-    if (phase < 0.83) {
-      return {
-        name: 'thirdQuarter',
-        image: (
-          <Image
-            source={require('../../assets/third-quarter.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-    if (phase < 1) {
-      return {
-        name: 'waningCrescent',
-        image: (
-          <Image
-            source={require('../../assets/waning-crescent.png')}
-            style={[styles.moonImage]}
-          />
-        ),
-      };
-    }
-  }, [currentDate]);
+
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.title}>
-        <FormattedText style={styles.dateText}>
-          {moment(currentDate).locale(i18n.locale).format('D MMMM YYYY')}
-        </FormattedText>
-        <FormattedText style={styles.moonPhase}>
-          {t(moonPhase.name)}
-        </FormattedText>
+    <View style={styles.container}>
+      <View style={styles.border} />
+      <View style={styles.configWrapper}>
+        <IconButton
+          onPress={() => setIsShowConfigDialog(true)}
+          icon={'cog'}
+          containerColor={'#ebc298'}
+          iconColor={'#b56130'}
+          mode={'contained'}
+        />
       </View>
-      <View style={styles.top}>
-        <View style={styles.imageWrapper}>{moonPhase.image}</View>
-        <View style={styles.moonDay}>
-          <FormattedText style={[styles.text]}>{currentMoonDay}</FormattedText>
+      {/*<AnimationView styles={{height: '100%'}}>*/}
+      <View style={styles.contentWrapper}>
+        <View style={styles.titleWrapper}>
+          <View style={styles.title}>
+            <FormattedText font={'NunitoBold'} style={styles.dateText}>
+              {format(currentDate, 'd MMMM', {
+                locale: timeLocale[i18n.locale]
+                  ? timeLocale[i18n.locale]
+                  : timeLocale.en,
+              })}
+            </FormattedText>
+            <FormattedText font={'NunitoBold'} style={styles.moonPhase}>
+              {t(moonPhase.name)}
+            </FormattedText>
+          </View>
         </View>
+        <View style={styles.top}>
+          {/*<View style={styles.imageWrapper}>{moonPhase.image}</View>*/}
+          <View style={styles.moonDay}>
+            <FormattedText font={'BerlinEmailBold'} style={[styles.text]}>
+              {currentMoonDay}
+            </FormattedText>
+          </View>
+        </View>
+        <MoonDaySwitcher withButtons />
       </View>
-      <MoonDaySwitcher withButtons />
+      {/*</AnimationView>*/}
     </View>
   );
 };
 const styles = StyleSheet.create({
-  wrapper: {
+  container: {
     height: 350,
     display: 'flex',
-    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: '#b56130',
+    // borderBottomColor: '#dad1b2',
+    // borderBottomWidth: 5,
   },
+  contentWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    maxWidth: '100%',
+    maxHeight: '100%',
+    paddingBottom: '3%',
+  },
+  border: {
+    position: 'absolute',
+    marginTop: '5%',
+    width: '90%',
+    height: '90%',
+    marginBottom: '5%',
+    borderWidth: 3,
+    borderColor: '#ebc298',
+    borderRadius: 5,
+  },
+  // stub: {
+  //   position: 'absolute',
+  //   width: '70%',
+  //   height: '10%',
+  //   // borderWidth: 1,
+  //   borderColor: '#ebc298',
+  //   backgroundColor: '#b56130',
+  //   alignSelf: 'flex-start',
+  //   marginTop: '70%',
+  //   marginLeft: '50%',
+  //   zIndex: 3,
+  //   transform: [{translateX: -150}]
+  // },
   top: {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    height: 240,
+    // height: 240,
   },
   moonDay: {
     display: 'flex',
     alignSelf: 'stretch',
-    justifyContent: 'center',
+    flexDirection: 'column',
+    // justifyContent: 'center',
     alignItems: 'center',
     width: '60%',
+  },
+  configWrapper: {
+    marginTop: 30,
+    position: 'absolute',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: '85%',
   },
   imageWrapper: {
     display: 'flex',
@@ -182,24 +144,34 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 170,
-    fontWeight: '100',
+    // fontWeight: '100',
     textAlign: 'center',
     color: secondColor,
+  },
+  titleWrapper: {
+    display: 'flex',
+    maxWidth: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     display: 'flex',
     alignItems: 'center',
     flexDirection: 'column',
-    justifyContent: 'flex-start',
-    height: 50,
+    // justifyContent: 'flex-start',
+    // height: 50,
     paddingLeft: 10,
     paddingTop: 10,
-    alignSelf: 'stretch',
+    width: '50%',
+    // alignSelf: 'stretch',
+    zIndex: 10,
+    backgroundColor: '#b56130',
   },
   dateText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     color: secondColor,
+    overflow: 'hidden',
     textTransform: 'capitalize',
   },
   moonPhase: {

@@ -1,5 +1,3 @@
-import {Moment} from 'moment/moment';
-
 export const moonDays = [
   '1',
   '2',
@@ -40,11 +38,11 @@ export type City = {
   p: number;
 };
 
-export type MoonDays = typeof moonDays[number];
+export type MoonDays = (typeof moonDays)[number];
 
 export type MoonDayData = {
-  start: Moment;
-  end: Moment | undefined;
+  start: Date;
+  end: Date | undefined;
   number: number;
 };
 export const sectionTypes = [
@@ -56,4 +54,13 @@ export const sectionTypes = [
   'sex',
   'wedding',
 ] as const;
-export type SectionTypes = typeof sectionTypes[number];
+export type SectionTypes = (typeof sectionTypes)[number];
+
+export const sectionIconNameMap: Record<SectionTypes, string> = {
+  description: 'view-headline',
+  health: 'medical-bag',
+  business: 'office-building-cog',
+  dreams: 'sleep',
+  sex: 'heart-multiple-outline',
+  wedding: 'hand-heart',
+};

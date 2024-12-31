@@ -1,14 +1,15 @@
 import {StyleSheet, View} from 'react-native';
-import React, {useCallback, useContext, useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {StateContext} from '../state';
 import {HeaderMenu} from './header-menu';
 import {TodayTab} from './today-tab';
 import {CalendarTab} from './calendar-tab';
-import {primaryColor} from '../styles';
-import moment from 'moment/moment';
 import {lunarDays} from '../data/calculate-moon-day';
 import {MoonDayData, MoonDays} from '../types';
-import {getLocation, getStorageData} from '../data/get-geolocation';
+import {isAfter} from 'date-fns/isAfter';
+import {isBefore} from 'date-fns/isBefore';
+import {AnimationView} from './animation-view';
+import {AnimatedViewCalendar} from './animated-view-calendar';
 
 const Header: React.FC = () => {
   // const isDarkMode = useColorScheme() === 'dark';
@@ -18,22 +19,22 @@ const Header: React.FC = () => {
     activeTab,
     setCurrentMoonDayData,
     location,
-    setLocation,
   } = useContext(StateContext);
   const recalculateDate = () => {
-    const date = moment(currentDate);
+    const date = currentDate;
 
-    let result = lunarDays(date, location[0] | 50, location[1] | 30);
+    let result = lunarDays(currentDate, location[0] | 50, location[1] | 30);
     setCurrentMoonDayData(result as MoonDayData[]);
     setCurrentMoonDay(
       result
-        .find(moonDay => date.isBetween(moonDay.start, moonDay.end))
+        .find(
+          moonDay =>
+            isAfter(date, moonDay.start) &&
+            isBefore(date, moonDay.end || new Date()),
+        )
         ?.number?.toString() as MoonDays,
     );
   };
-  const getLocationData = useCallback(async () => {
-    await getLocation(setLocation);
-  }, []);
   useEffect(() => {
     recalculateDate();
   }, []);
@@ -43,7 +44,15 @@ const Header: React.FC = () => {
   return (
     <View style={styles.wrapper}>
       <HeaderMenu />
-      {activeTab === 'today' ? <TodayTab /> : <CalendarTab />}
+      {activeTab === 'today' ? (
+        <AnimationView side={'left'}>
+          <TodayTab />
+        </AnimationView>
+      ) : (
+        <AnimatedViewCalendar>
+          <CalendarTab />
+        </AnimatedViewCalendar>
+      )}
     </View>
   );
 };
@@ -52,7 +61,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: primaryColor,
+    backgroundColor: '#b56130',
   },
 });
 

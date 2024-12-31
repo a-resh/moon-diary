@@ -1,7 +1,9 @@
-import React from 'react';
+import React, {ReactNode} from 'react';
 import {StyleSheet, View} from 'react-native';
 
-export const ContentWrapper: React.FC = ({children}) => {
+export const ContentWrapper: React.FC<{children: ReactNode | ReactNode[]}> = ({
+  children,
+}) => {
   return <View style={styles.container}>{children}</View>;
 };
 

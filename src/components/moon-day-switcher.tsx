@@ -1,21 +1,23 @@
-import React, {useContext} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import {
-  primaryColor,
-  primaryColorActive,
-  secondColor,
-  secondColorActive,
-} from '../styles';
+import React, {useContext, useEffect} from 'react';
+import {StyleSheet, View} from 'react-native';
+import {secondColor, secondColorActive} from '../styles';
 import moment from 'moment/moment';
 import {StateContext} from '../state';
 import {FormattedText} from './formated-text';
-import {t} from 'i18n-js';
+import i18n, {t} from 'i18n-js';
+import {BlurView} from 'expo-blur';
+import {IconButton, Text, useTheme} from 'react-native-paper';
+import {capitalize} from 'lodash';
+import {isTomorrow} from 'date-fns/isTomorrow';
+import {format} from 'date-fns/format';
+import {timeLocale} from '../localization/config';
+import styled from 'styled-components/native';
 
 export const MoonDaySwitcher: React.FC<{
   withButtons?: boolean;
   withDates?: boolean;
 }> = ({withButtons, withDates}) => {
+  const {fonts} = useTheme();
   const {currentDate, setCurrentDate, currentMoonDaysData} =
     useContext(StateContext);
   const onMoveDay = (button: 'left' | 'right') => {
@@ -26,67 +28,75 @@ export const MoonDaySwitcher: React.FC<{
     setCurrentDate(date);
   };
   return (
-    <View style={[styles.wrapper]}>
+    <BlurView intensity={50} style={styles.wrapper}>
       {withButtons ? (
-        <Icon.Button
-          underlayColor={primaryColor}
-          backgroundColor="rgba(0,0,0,0)"
-          name="angle-left"
+        <IconButton
+          icon="menu-left"
           onPress={() => onMoveDay('left')}
-          size={35}
-          color={secondColor}
+          size={45}
+          iconColor={secondColor}
         />
       ) : null}
       <View style={styles.dateWrapper}>
         <View style={styles.textWrapper}>
-          {currentMoonDaysData.map((moonDay, i) => (
-            <View key={`${i}-d`} style={styles.moonDayWrapper}>
-              <View style={[styles.moonDay]}>
-                <FormattedText>{moonDay.number} </FormattedText>
-              </View>
-              {withDates ? (
-                <FormattedText style={[styles.textSmall]}>
-                  {`${moment(moonDay.start).format('D.MM.YY H:MM')} - ${moment(
-                    moonDay.end,
-                  ).format('D.MM.YY H:MM')}`}
-                </FormattedText>
-              ) : (
-                <FormattedText style={styles.textSmall}>
-                  {`${
-                    moment(moonDay.start).isSame(moment(currentDate), 'd')
-                      ? moment(moonDay.start).format('H:MM')
-                      : t('fromYesterday')
-                  } ${
-                    moment(moonDay.end).isSame(moment(currentDate), 'd')
-                      ? moment(moonDay.end).format('H:MM')
-                      : t('tomorrow')
-                  }`}
-                </FormattedText>
-              )}
-            </View>
-          ))}
+          {/*{currentMoonDaysData.map((moonDay, i) => (*/}
+          <View style={styles.moonDayWrapper}>
+            {withDates ? (
+              <MoonDayIcon size={fonts.bodyMedium.fontSize}>
+                <Text
+                  variant={'bodyMedium'}
+                  style={{
+                    ...styles.moonDayIcon,
+                    lineHeight: fonts.bodyMedium.fontSize + 3,
+                  }}
+                >
+                  {currentMoonDaysData[0].number}
+                </Text>
+              </MoonDayIcon>
+            ) : null}
+            <FormattedText font={'NunitoBold'} style={styles.textSmall}>
+              {`${
+                moment(currentMoonDaysData[0]?.end).isSame(
+                  moment(new Date()),
+                  'd',
+                )
+                  ? capitalize(t('fromYesterday'))
+                  : isTomorrow(currentMoonDaysData[0]?.end || new Date())
+                  ? capitalize(t('tomorrow'))
+                  : `${capitalize(t('ends'))} ${format(
+                      currentMoonDaysData[0]?.end || new Date(),
+                      'd MMMM',
+                      {
+                        locale: timeLocale[i18n.locale]
+                          ? timeLocale[i18n.locale]
+                          : timeLocale.en,
+                      },
+                    )} ${t('at')}`
+              } ${moment(currentMoonDaysData[0]?.end).format('H:MM')}`}
+            </FormattedText>
+            {/*)}*/}
+          </View>
+          {/*))}*/}
         </View>
       </View>
       {withButtons ? (
-        <Icon.Button
-          underlayColor={primaryColor}
-          backgroundColor="rgba(0,0,0,0)"
-          name="angle-right"
+        <IconButton
+          icon="menu-right"
           onPress={() => onMoveDay('right')}
-          size={35}
-          color={secondColor}
+          size={45}
+          iconColor={secondColor}
         />
       ) : null}
-    </View>
+    </BlurView>
   );
 };
 
 const styles = StyleSheet.create({
   textSmall: {
-    fontSize: 15,
-    fontWeight: '300',
+    fontSize: 17,
+    // fontWeight: '300',
     color: secondColor,
-    textAlign: 'left',
+    // textAlign: 'left',
   },
   textWrapper: {
     display: 'flex',
@@ -96,6 +106,7 @@ const styles = StyleSheet.create({
   dateWrapper: {
     width: '80%',
     display: 'flex',
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -106,8 +117,11 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 60,
+    paddingRight: 60,
+    marginTop: 10,
+    marginBottom: 10,
+    zIndex: 10,
   },
   moonDayWrapper: {
     display: 'flex',
@@ -126,4 +140,24 @@ const styles = StyleSheet.create({
     marginRight: 5,
     paddingLeft: 2,
   },
+  moonDayIcon: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    color: secondColor,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
 });
+
+const MoonDayIcon = styled.View<{size: number}>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${props => props.size * 1.7}px;
+  height: ${props => props.size * 1.7}px;
+  border-radius: ${props => props.size * 1.6}px;
+  background-color: #577572;
+  margin-right: 5px;
+  border: 1px solid ${secondColor};
+`;

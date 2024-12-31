@@ -1,12 +1,15 @@
-import React, {useState} from 'react';
+import React, {ReactNode, useCallback, useEffect, useState} from 'react';
 import {MoonDayData, MoonDays} from '../types';
+import {getLocation} from '../data/get-geolocation';
 type Tabs = 'today' | 'calendar';
 type IState = {
+  isShowDialog: boolean;
   currentMoonDay: MoonDays;
   currentDate: Date;
   activeTab: Tabs;
   currentMoonDaysData: MoonDayData[];
   location: number[];
+  headerSize: number;
 };
 type IStateFunctions = {
   setCurrentMoonDay: (day: MoonDays) => void;
@@ -14,28 +17,44 @@ type IStateFunctions = {
   setActiveTab: (tab: Tabs) => void;
   setCurrentMoonDayData: (data: MoonDayData[]) => void;
   setLocation: (location: number[]) => void;
+  setHeaderSize: (size: number) => void;
+  setIsShowConfigDialog: (isShowDialog: boolean) => void;
 };
 export const StateContext = React.createContext<IState & IStateFunctions>({
   currentMoonDay: '1',
+  isShowDialog: false,
   currentDate: new Date(),
   activeTab: 'today',
   currentMoonDaysData: [],
   location: [],
+  headerSize: 1,
   setCurrentMoonDay: () => {},
   setCurrentDate: () => {},
   setActiveTab: () => {},
   setCurrentMoonDayData: () => {},
   setLocation: () => {},
+  setHeaderSize: () => {},
+  setIsShowConfigDialog: () => {},
 });
 
-export const StateProvider: React.FC = ({children}) => {
+export const StateProvider: React.FC<{children: ReactNode | ReactNode[]}> = ({
+  children,
+}) => {
   const [state, setState] = useState<IState>({
     activeTab: 'today',
+    isShowDialog: false,
     currentMoonDay: '1',
     currentDate: new Date(),
     currentMoonDaysData: [],
     location: [50, 30],
+    headerSize: 350,
   });
+  const getLocationData = useCallback(async () => {
+    await getLocation(setLocation);
+  }, []);
+  useEffect(() => {
+    getLocationData();
+  }, []);
   const setCurrentMoonDay = (day: MoonDays) => {
     setState(s => ({...s, currentMoonDay: day}));
   };
@@ -51,6 +70,12 @@ export const StateProvider: React.FC = ({children}) => {
   const setLocation = (data: number[]) => {
     setState(s => ({...s, location: data}));
   };
+  const setHeaderSize = (headerSize: number) => {
+    setState(s => ({...s, headerSize}));
+  };
+  const setIsShowConfigDialog = (isShowDialog: boolean) => {
+    setState(s => ({...s, isShowDialog}));
+  };
   return (
     <StateContext.Provider
       value={{
@@ -60,6 +85,8 @@ export const StateProvider: React.FC = ({children}) => {
         setActiveTab,
         setCurrentMoonDayData,
         setLocation,
+        setHeaderSize,
+        setIsShowConfigDialog,
       }}
     >
       {children}

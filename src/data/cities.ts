@@ -1,4 +1,5 @@
 import {City} from '../types';
+
 /* eslint no-use-before-define: 0 */
 export const cities: {data: City[]} = {
   data: [
